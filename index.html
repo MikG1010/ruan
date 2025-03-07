@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Famin or Abandins</title>
+  <style>
+    body { text-align: center; font-family: Arial, sans-serif; }
+    #shop, #game, #results { display: none; }
+    .item { margin: 10px; padding: 10px; border: 1px solid black; display: inline-block; cursor: pointer; }
+    .item img { width: 150px; height: auto; display: block; margin: 10px auto; }
+    #countryImage { width: 400px; margin: 10px auto; display: block; }
+    #passportImage { width: 200px; margin: 10px auto; display: block; }
+  </style>
+</head>
+<body>
+  <h1>Famin or Abandins</h1>
+  
+  <div id="login">
+    <h2>Enter your 8-digit code:</h2>
+    <input type="text" id="codeInput" maxlength="8" />
+    <button onclick="assignCountry()">Login</button>
+  </div>
+  
+  <div id="game">
+    <h2>Welcome, your passport is from <span id="countryName"></span> lol</h2>
+    <img id="passportImage" src="" alt="Passport Image" />
+    <h3>Your daily income: $<span id="income"></span></h3>
+    <button onclick="enterShop()">Enter Shop</button>
+  </div>
+  
+  <div id="shop">
+    <h2>Shop</h2>
+    <h3>Budget: $<span id="budget"></span></h3>
+    <div id="items"></div>
+    <button onclick="finishShopping()">Finish Shopping</button>
+  </div>
+  
+  <div id="results">
+    <h2>Shopping Summary</h2>
+    <h3>You purchased:</h3>
+    <ul id="purchasedItems"></ul>
+    <h3>About <span id="resultCountry"></span>:</h3>
+    <p id="countryFacts"></p>
+    <img id="countryImage" src="" alt="Country Image" />
+    <button onclick="restartGame()">Restart Game</button>
+  </div>
+  
+  <script>
+    const countries = {
+      "Norway": {
+        income: 100,
+        facts: "Norway is one of the wealthiest nations due to its vast oil reserves and social welfare programs. The country has a high standard of living and ranks among the happiest in the world.",
+        image: "https://i.imgur.com/Ea5YkDE.jpeg",
+        passportImage: "https://i.imgur.com/z3HxddT.jpeg"
+      },
+      "Australia": {
+        income: 90,
+        facts: "Australia has a strong economy fueled by mining, agriculture, and tourism. It boasts a high Human Development Index and excellent quality of life.",
+        image: "https://i.imgur.com/EA4GYCa.jpeg",
+        passportImage: "https://i.imgur.com/z3HxddT.jpeg"
+      },
+      "USA": {
+        income: 80,
+        facts: "The United States has the world's largest economy, driven by technology, finance, and global trade. However, wealth inequality is a major issue.",
+        image: "https://i.imgur.com/WkxWn3J.jpeg",
+        passportImage: "https://i.imgur.com/z3HxddT.jpeg"
+      },
+      "Ethiopia": {
+        income: 2,
+        facts: "Ethiopia is one of Africa's fastest-growing economies, yet many live in poverty, relying on subsistence agriculture. It’s known for its rich history and coffee production.",
+        image: "https://i.imgur.com/lCl7VZ4.png",
+        passportImage: "https://i.imgur.com/z3HxddT.jpeg"
+      },
+      "Bangladesh": {
+        income: 5,
+        facts: "Bangladesh has made strides in textiles and population growth, but poverty persists due to floods and limited resources. It’s famous for the Sundarbans mangrove forest.",
+        image: "https://i.imgur.com/8V6a4mP.png",
+        passportImage: "https://i.imgur.com/z3HxddT.jpeg"
+      },
+      "Haiti": {
+        income: 3,
+        facts: "Haiti is the poorest country in the Western Hemisphere, struggling with natural disasters and political instability. It has a vibrant culture and history of resilience.",
+        image: "https://i.imgur.com/KolVTOh.png",
+        passportImage: "https://i.imgur.com/z3HxddT.jpeg"
+      }
+    };
+    
+    let assignedCountry = "";
+    let dailyIncome = 0;
+    let budget = 0;
+    let purchased = [];
+    
+    function assignCountry() {
+      const code = document.getElementById("codeInput").value;
+      if (code.length === 8) {
+        const countryNames = Object.keys(countries);
+        assignedCountry = countryNames[parseInt(code) % countryNames.length];
+        
+        document.getElementById("countryName").innerText = assignedCountry;
+        document.getElementById("income").innerText = countries[assignedCountry].income;
+        document.getElementById("passportImage").src = countries[assignedCountry].passportImage;
+        
+        dailyIncome = countries[assignedCountry].income;
+        budget = dailyIncome;
+        document.getElementById("game").style.display = "block";
+        document.getElementById("login").style.display = "none";
+      } else {
+        alert("Please enter a valid 8-digit code.");
+      }
+    }
+    
+    function enterShop() {
+      document.getElementById("game").style.display = "none";
+      document.getElementById("shop").style.display = "block";
+      document.getElementById("budget").innerText = budget;
+      
+      const items = [
+        { name: "Jou Ma se Bord Kos", cost: 1, image: "https://i.imgur.com/7ru1IO3.png" },
+        { name: "Pancake", cost: 10, image: "https://i.imgur.com/LUfFNhj.jpeg" },
+        { name: "Sandwich", cost: 50, image: "https://i.imgur.com/1HYgih6.jpeg" },
+        { name: "Steak", cost: 85, image: "https://i.imgur.com/HNAhF7s.jpeg" },
+        { name: "Seafood", cost: 100, image: "https://i.imgur.com/MFqOEku.jpeg" }
+      ];
+      
+      let itemsHtml = items.map(item => `
+        <div class="item" onclick="addToCart('${item.name}', ${item.cost})">
+          <h4>${item.name}</h4>
+          <img src="${item.image}" alt="${item.name}" />
+          <p>$${item.cost}</p>
+        </div>
+      `).join('');
+      
+      document.getElementById("items").innerHTML = itemsHtml;
+    }
+    
+    function addToCart(name, cost) {
+      if (budget >= cost) {
+        budget -= cost;
+        purchased.push(name);
+        document.getElementById("budget").innerText = budget;
+      } else {
+        alert("Not enough budget.");
+      }
+    }
+    
+    function finishShopping() {
+      document.getElementById("shop").style.display = "none";
+      document.getElementById("results").style.display = "block";
+      document.getElementById("resultCountry").innerText = assignedCountry;
+      document.getElementById("countryFacts").innerText = countries[assignedCountry].facts;
+      document.getElementById("countryImage").src = countries[assignedCountry].image;
+      
+      let purchasedList = document.getElementById("purchasedItems");
+      purchasedList.innerHTML = "";
+      purchased.forEach(item => {
+        let li = document.createElement("li");
+        li.innerText = item;
+        purchasedList.appendChild(li);
+      });
+    }
+    
+    function restartGame() {
+      window.location.reload();
+    }
+  </script>
+</body>
+</html>
